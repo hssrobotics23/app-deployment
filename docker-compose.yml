@@ -1,0 +1,57 @@
+version: "3.6"
+
+# Using Docker_BuildKit which requires:
+# export DOCKER_BUILDKIT=1
+# export COMPOSE_DOCKER_CLI_BUILD=1
+
+x-build-args: &build_args
+  INSTALL_PYTHON_VERSION: 3.8
+
+services:
+  api:
+    restart: always
+    build: ../api
+    image: dgmd_api
+    container_name: dgmd_api
+    expose:
+      - "8080"
+    ports:
+      - "80:8080"
+    volumes:
+      - secret-vol:/secrets
+      - "../api:/app"
+    networks:
+      - frontend
+      - backend
+
+  mlflow:
+    restart: always
+    build: ../mlflow
+    image: dgmd_mlflow
+    container_name: dgmd_mlflow
+    environment:
+      - AWS_SHARED_CREDENTIALS_FILE=/secrets/aws_credentials
+    volumes:
+      - db-vol:/db
+      - secret-vol:/secrets
+    ports:
+      - "5000:5000"
+    expose:
+      - "5000"
+    networks:
+      - backend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  secret-vol:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: $PWD/secrets
+  db-vol: null
