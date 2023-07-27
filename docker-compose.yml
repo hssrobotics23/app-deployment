@@ -9,6 +9,26 @@ x-build-args: &build_args
 
 services:
 
+  api:
+    restart: always
+    build: ../api
+    image: dgmd_api
+    container_name: dgmd_api
+    environment:
+      - MLFLOW_TRACKING_URI=http://dgmd_mlflow:5000/
+      - MODEL_NAME=dgmd_model
+      - AWS_SHARED_CREDENTIALS_FILE=/secrets/aws_credentials    
+    expose:
+      - "8080"
+    ports:
+      - "80:8080"
+    volumes:
+      - secret-vol:/secrets
+      - "../api:/app"
+    networks:
+      - frontend
+      - backend
+  
   mlflow:
     restart: always
     build: ../mlflow
