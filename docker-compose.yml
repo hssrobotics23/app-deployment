@@ -11,8 +11,8 @@ services:
 
   api:
     restart: always
-    build: ../api
-    image: dgmd_api
+    # build: ../api
+    image: ghcr.io/hssrobotics23/api/dgmd_apis:latest
     container_name: dgmd_api
     environment:
       - MLFLOW_TRACKING_URI=http://dgmd_mlflow:5000/
@@ -31,8 +31,8 @@ services:
   
   mlflow:
     restart: always
-    build: ../mlflow
-    image: dgmd_mlflow
+    # build: ../mlflow
+    image: ghcr.io/hssrobotics23/mlflow/dgmd_mlflow:latest
     container_name: dgmd_mlflow
     environment:
       - AWS_SHARED_CREDENTIALS_FILE=/secrets/aws_credentials
@@ -47,8 +47,8 @@ services:
       - backend
 
   model-pipeline:
-    build: ../model_training_pipeline
-    image: dgmd_model_pipeline
+    # build: ../model_training_pipeline
+    image: ghcr.io/hssrobotics23/model_training_pipeline/dgmd_model_pipeline:latest
     container_name: dgmd_model_pipeline
     volumes:
       - secret-vol:/secrets
