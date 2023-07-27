@@ -8,21 +8,6 @@ x-build-args: &build_args
   INSTALL_PYTHON_VERSION: 3.8
 
 services:
-  api:
-    restart: always
-    build: ../api
-    image: dgmd_api
-    container_name: dgmd_api
-    expose:
-      - "8080"
-    ports:
-      - "80:8080"
-    volumes:
-      - secret-vol:/secrets
-      - "../api:/app"
-    networks:
-      - frontend
-      - backend
 
   mlflow:
     restart: always
@@ -38,6 +23,23 @@ services:
       - "5000:5000"
     expose:
       - "5000"
+    networks:
+      - backend
+
+  model-pipeline:
+    build: ../model_training_pipeline
+    image: dgmd_model_pipeline
+    container_name: dgmd_model_pipeline
+    volumes:
+      - secret-vol:/secrets
+      - ./data:/app/data
+      - ../model_training_pipeline:/app
+    environment:
+      - MLFLOW_TRACKING_URI=http://dgmd_mlflow:5000/
+      - MODEL_NAME=dgmd_model
+      - AWS_SHARED_CREDENTIALS_FILE=/secrets/aws_credentials
+    depends_on:
+      - mlflow
     networks:
       - backend
 
